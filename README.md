@@ -4,7 +4,7 @@ A brief description of what this project does and who it's for
 ---
 
 # Cloud Infrastructure
-<img src="./assets//klin.png">
+<img src="./assets/klin-infra.png">
 
 ---
 
