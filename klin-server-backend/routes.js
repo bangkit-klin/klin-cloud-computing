@@ -1,10 +1,11 @@
 // Import dari Handler
-const { addUserToFirebase } = require("./handler")
 const { getAll, deleteAll } = require("./handler/all");
+const { predict } = require("./handler/predict");
 const {
     getAllUsers,
     getUsers,
-    makeUsers,
+    signup,
+    signin,
     editUsers,
     deleteUsers,
 } = require("./handler/users");
@@ -22,6 +23,7 @@ const {
     editTransaksi,
     deleteTransaksi,
 } = require("./handler/transaction");
+const { log } = require("@tensorflow/tfjs");
 
 const routes = [
     // all - Ambil Seluruh Data Database
@@ -52,18 +54,25 @@ const routes = [
         handler: getUsers,
     },
 
-    // users - Buat Data Users Baru
+    // users - Sign Up
     {
         method: "POST",
-        path: "/users",
-        handler: makeUsers,
+        path: "/signup",
+        handler: signup,
         options: {
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
+    },
+
+    // users - Sign In
+    {
+        method: "POST",
+        path: "/signin",
+        handler: signin,
     },
 
     // users - Edit Data Users Tertentu
@@ -75,7 +84,7 @@ const routes = [
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
     },
@@ -110,7 +119,7 @@ const routes = [
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
     },
@@ -124,7 +133,7 @@ const routes = [
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
     },
@@ -159,7 +168,7 @@ const routes = [
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
     },
@@ -173,7 +182,7 @@ const routes = [
             payload: {
                 maxBytes: 10485760,
                 multipart: true,
-                output: 'stream'
+                output: "stream",
             },
         },
     },
@@ -185,12 +194,18 @@ const routes = [
         handler: deleteTransaksi,
     },
 
+    // predict - Memprediksi Objek Laundry
     {
         method: "POST",
-        path: "/signup",
-        handler: addUserToFirebase,
-            // ... authentication logic
-        
+        path: "/predict",
+        handler: predict,
+        options: {
+            payload: {
+                maxBytes: 10485760,
+                multipart: true,
+                output: "stream",
+            },
+        },
     },
 ];
 

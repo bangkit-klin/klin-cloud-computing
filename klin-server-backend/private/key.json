@@ -1,5 +1,8 @@
 {
-    "api_key": "XXXXXXX",
-    "project_id": "XXXXXXX",
-    "storage_bucket": "XXXXXXX"
+    "api_key": "XXXXXXXXXXXXX",
+    "project_id": "XXXXXXXXXXXXX",
+    "storage_bucket": "XXXXXXXXXXXXX",
+    "klin_ml_backend": "XXXXXXXXXXXXX",
+    "firebase_apiKey": "XXXXXXXXXXXXX",
+    "firebase_authDomain": "XXXXXXXXXXXXX"
 }

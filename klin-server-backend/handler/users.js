@@ -5,6 +5,10 @@ const fs = require("fs");
 const path = require("path");
 const api_key = require("../private/key.json").api_key;
 const bucketName = require("../private/key.json").storage_bucket;
+const firebase_apiKey = require("../private/key.json").firebase_apiKey;
+const firebase_authDomain = require("../private/key.json").firebase_authDomain;
+const { initializeApp } = require("firebase/app");
+const { signInWithEmailAndPassword, getAuth } = require("firebase/auth");
 
 // users - Ambil Seluruh Data Users
 const getAllUsers = async (request, h) => {
@@ -65,8 +69,8 @@ const getUsers = async (request, h) => {
     }
 };
 
-// users - Buat Data Users Baru
-const makeUsers = async (request, h) => {
+// users - Sign Up
+const signup = async (request, h) => {
     // Mengambil Kunci API dari Request Header
     const key = request.headers["x-api-key"];
     // Jika Kunci API Benar
@@ -170,6 +174,77 @@ const makeUsers = async (request, h) => {
                 response.code(500); // Internal Server Error
             }
 
+            return response;
+        }
+    }
+    // Jika Kunci API Salah
+    else {
+        const response = h.response({
+            status: "unauthorized",
+        });
+        response.code(401);
+        return response;
+    }
+};
+
+// users - Sign In
+const signin = async (request, h) => {
+    // Mengambil Kunci API dari Request Header
+    const key = request.headers["x-api-key"];
+    const { users_email, users_password } = request.payload;
+    // Jika Kunci API Benar
+    if (key === api_key) {
+        const firebaseConfig = {
+            apiKey: `${firebase_apiKey}`,
+            authDomain: `${firebase_authDomain}`,
+        };
+
+        let resultlogin;
+        let uid;
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Initialize Firebase Authentication and get a reference to the service
+        const auth = getAuth(app);
+        await signInWithEmailAndPassword(auth, users_email, users_password)
+            .then((userCredential) => {
+                // Signed in
+                resultlogin = 1;
+                uid = userCredential.user.uid;
+            })
+            .catch((error) => {
+                resultlogin = 0;
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            });
+
+        if (resultlogin == 1) {
+            let users_data;
+            const db = firebase_admin.firestore();
+            const users = db.collection("users");
+            const snapshot = await users
+                .where("firebase_uid", "==", `${uid}`)
+                .get();
+            if (snapshot.empty) {
+                // console.log("No matching documents.");
+            }
+
+            snapshot.forEach((doc) => {
+                users_data = (doc.id, "=>", doc.data());
+            });
+
+            const response = h.response({
+                status: "login success",
+                user: users_data,
+            });
+            response.code(200);
+            return response;
+        } else {
+            const response = h.response({
+                status: "login failed",
+            });
+            response.code(401);
             return response;
         }
     }
@@ -329,4 +404,4 @@ const deleteUsers = async (request, h) => {
     }
 };
 
-module.exports = { getAllUsers, getUsers, makeUsers, editUsers, deleteUsers };
+module.exports = { getAllUsers, getUsers, signup, signin, editUsers, deleteUsers };
